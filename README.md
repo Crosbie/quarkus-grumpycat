@@ -1,4 +1,5 @@
-# quarkus-grumpycat game
+# Quarkus GrumpyCat
+![Quarkus GrumpyCat](./melonjs-client/src/main/client/data/img/GrumpyCat-Title.png)
 
 This Game uses Quarkus, the Supersonic Subatomic Java Framework and HTML 5 / JavaScript.
 
@@ -6,9 +7,24 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 All client game logic is currently coded with JavaScript and [MelonJS](https://github.com/melonjs/melonjs).
 
+There is a demo of this game running [here](http://cat-client-grumpycat.apps.ruby.rhepds.com). 
+
+
+## Technical Blog entries
+I am currently blogging about the creation of this game as it's still meant to be educational.
+
+Here are the current articles:
+
+- [Chapter #1 - Initial Setup](https://www.opensourcerers.org/2022/10/24/using-quarkus-to-develop-a-multiplayer-game-chapter-1-initial-setup/)
+- The server feeds the client
+(To be released end of Nov 2022)
+
+
 ## The Game
 
 This game was inspired by the old Fat-Cat game and by PacMan. You're controlling a dog in a maze which needs to eat all food without being caught by a grumpy cat or other enemies. 
+
+It also supports multi player gaming. A host can invite up to 3 other players who can join a multi player session. The winner of such a session is "last dog standing" or the player who has collected most points.
 
 ### How to play (single player)
 Right now you can control the dog with arrow keys UP, DOWN, LEFT & RIGHT and with W, A, S, D. More keys are:
@@ -47,8 +63,10 @@ There are different bonus tiles to be collected.
   - green: +3 magic protection circles
   - violet: +3 magic nebula
 
+![Bonus Tiles](./docs/37E7903F-54F1-40A4-8E73-9DB6198D4BD2.jpeg)
+
 ### Life demo
-There is a demo of this game running [here](http://cat-client-quarkus-grumpycat.apps.cat.rhepds.com/). 
+There is a demo of this game running [here](http://cat-client-grumpycat.apps.ruby.rhepds.com). 
 Please note, that I am using this server also for workshops etc. So the system might not be as stable as expected. But you can give it a try.
 
 If you have any suggestestions or want to contribute, please open an [issue here](https://github.com/wpernath/quarkus-grumpycat/issues). Thank you!
@@ -76,30 +94,9 @@ The winner of the match is the player who has a higher score than all others or 
 
 And do not forget: There are still other enemies who can hit you!
 
-### Future of multi player
-I am currently working on specialied multi player features for the player
-- A magic bolt (flying into the direction where they were fired, killing or stunning enemies and players)
-- A magic protection shield around yourself (15 seconds). Enemies or other players can't hurt you
-- A magic fire circle around yourself (15 seconds or hitting up to 5 enemies / players). 
-- A magic invisible nebula around yourself (enemies can see and thus can't attack you, enemies might find another player to attack them in this time)
-
 
 ## Running the applications in dev mode
-
-First you need to startup the server by getting into `quarkus-server` and executing:
-```shell script
-cd quarkus-server
-./mvnw compile quarkus:dev
-```
-
-Then you need to open another terminal window and need to get into the client and executing:
-```shell script
-cd melonjs-client
-npm install
-npm run dev
-```
-
-Make sure that the `environment` variable in `melonjs-client/src/config.js` is set to `local`. 
+Please have a look at the [contributors guide](./CONTRIBUTING.md).
 
 ## Running on Docker / Podman
 There are container images ready to be used on [Quay.io](https://quay.io/wpernath/quarkus-grumpycat). Use this command to pull the images to your local repository:
@@ -121,78 +118,17 @@ The app is then available under `http://localhost:8085` in your browser.
 ## Running on Kubernetes / OpenShift
 
 ### OpenShift / Kubernetes image deployment in a GitOps way
-There are precompiled images available on `quay.io/wpernath/quarkus-grumpycat`. You can either use `latest` tag or use one of the `vx.y.z` tags.
-
-NOTE, for this approach, you need to have the following Operators installed in your OpenShift / Kubernetes cluster:
-
-- [Crunchy Data Postgres Operator](https://operatorhub.io/operator/postgresql)
-- [Strimzi Kafka Operator](https://operatorhub.io/operator/strimzi-kafka-operator)  
-
-Just have a look into the [kubernetes-config directory](kubernetes-config). Then apply the `overlays/dev` configuration as usual, after making sure the config maps are set according to your target namespace
-
-```shell
-oc login <log into your openshift cluster>
-oc new-project grumpy-test
-oc apply -k kubernetes-config/overlays/dev
-```
-
-This will automatically install a database, the Kafka service and the latest DEV versions of the App.
-
-To delete the app, use:
-
-```shell 
-oc delete -k kubernetes-config/overlays/dev
-```
-
+Please have a look [here](./kubernetes-config/README.md)
 
 ### Using full featured GitOps
-To make use of all GitOps features, have a look at the `gitops` folder of this project. 
+To make use of all GitOps features, have a look at the documentation inside the [gitops](./gitops/README.md) folder of this project. 
 
-Your OpenShift / Kubernetes cluster needs to have the following Operators installed (in addition to Strimzi and Crunchy PGO):
 
-- [OpenShift Pipeline (or Tekton Pipeline)](https://operatorhub.io/operator/tektoncd-operator)
-- [OpenShift GitOps (or an ArgoCD instance)](https://operatorhub.io/operator/argocd-operator)
-
-To install the `cat-ci` project, call:
-
-```shell
-./gitops/tekton/pipeline.sh init \
-	--force \
-	--git-user <your git user> \
-	--git-password <your git password> \
-	--registry-user <your quay.io user> \
-	--registry-password <your quay.io password>
-```
-
-To install the `cat-dev` and `cat-stage` projects, call
-
-```shell
-oc apply -k ./gitops/argocd
-```
-
-To start a pipeline build, call
-
-```shell
-./gitops/tekton/pipeline.sh build \
-	-u <your quay.io user>
-	-p <your quay.io password>
-```
-
-To stage your version of quarkus-grumpycat, call something like
-
-```shell
-./gitops/tekton/pipeline.sh stage -r v0.2.4
-```
-
-This creates a new branch in github.com and tags the current images on quay.io.
 
 ## Roadmap
 
-- In the near future there will also be an EnemyMovementResource to store - well - the enemy's movements, as my plan to calculate new positions of the enemies based on current PlayerMovement doesn't work properly (timing issue).
-
 - Refactoring of the JavaScript stuff. I mainly have used this project to learn some JavaScript. Now it's time to refactor everything and to use some more fancy methods to do the same.
 
-- Do not directly use the Player- / EnemyMovement to store the data in the database, but use Apache Kafka or Streams to take the data and then use a Consumer to store the data asynchronously in the database. 
 
 ## About the graphics
 The map graphics are coming from [LPC Terrain](https://opengameart.org/content/tiled-terrains) and all its authors. Special thanks to all of them!

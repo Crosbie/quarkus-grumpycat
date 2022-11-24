@@ -1,26 +1,32 @@
 # Kubernetes Configuration files
 This folder is a quick copy of the [grumpycat-config](https://github.com/wpernath/grumpycat-config) repository. It's here to make things easier for you to consume the app on OpenShift.
 
+## Preparation
+There are precompiled images available on `quay.io/wpernath/quarkus-grumpycat`. You can either use `latest` tag or use one of the `vx.y.z` tags.
+
+NOTE, for this approach, you need to have the following Operators installed in your OpenShift / Kubernetes cluster:
+
+- [Crunchy Data Postgres Operator](https://operatorhub.io/operator/postgresql)
+- [Strimzi Kafka Operator](https://operatorhub.io/operator/strimzi-kafka-operator)  
+
 ## Installation
-Simply create a new project in OpenShift by executing:
+Simply log into your OpenShift cluster and then execute
 
 ```shell script
-oc new-project grumpy-test
+oc apply -k kubernetes-config/overlays/<your stage|dev>
 ```
 
-And then execute:
+This will create a namespace called `grumpycat` and installs the latest grumpycat client, server and other dependencies in the namespace. You can delete the installation by executing
 
 ```shell script
-oc apply -k kubernetes-config/overlays/dev
+oc delete -k kubernetes-config/overlays/<your stage|dev>
 ```
 
-This will install the latest grumpycat client, server and other dependencies in the current active project. You can delete the installation by executing
-
-```shell script
-oc delete -k kubernetes-config/overlays/dev
-```
-
-**NOTE**, if you want to install the app in any other namespace than `grumpy-test`, you have to change `APPLICATION_BASESERVERURL` in `overlays/dev/kustomization.yaml` to point to the corresponding URL:
+**NOTE**, if you want to install the app in any other namespace than `grumpycat`, you have to change the following files and properties in there:
+- `base/ns.yaml` change the name of the namespace to be created
+- `overlays/<your-target>/kustomization.yaml`
+  - Change `namespace` entry to your namespace
+  - Change `APPLICATION_BASESERVERURL` to point to the corresponding URL:
 
 Instead of:
 
@@ -32,7 +38,7 @@ configMapGenerator:
   # 
   - name: client-config
     literals:
-      - APPLICATION_BASESERVERURL=http://cat-server-grumpy-test.apps.work.ocp.lan/  
+      - APPLICATION_BASESERVERURL=http://cat-server-grumpycat.apps.work.ocp.lan/  
 ```
 
 You should have something like:
@@ -45,7 +51,7 @@ configMapGenerator:
   # 
   - name: client-config
     literals:
-      - APPLICATION_BASESERVERURL=http://cat-server-<my namespace>.apps.work.ocp.lan/  
+      - APPLICATION_BASESERVERURL=http://cat-server-<my namespace>.apps.<my-domain>/  
 ```
 
 

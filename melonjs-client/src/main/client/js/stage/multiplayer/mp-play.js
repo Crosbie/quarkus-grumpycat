@@ -1,4 +1,4 @@
-import { Stage, game, event, state, level, pool, BitmapText } from "melonjs";
+import { Stage, game, event, state, level, pool, BitmapText } from "melonjs/dist/melonjs.module.js";
 import MultiplayerManager, { MultiplayerMessageType } from "../../util/multiplayer";
 import CatEnemy from "../../renderables/cat-enemy.js";
 import { SpiderEnemy } from "../../renderables/spider-enemy.js";
@@ -191,12 +191,7 @@ export default class MultiplayerPlayScreen extends BasePlayScreen {
      * @returns 
      */
 	playersFromGame(theGame) {
-		let players = [];
-		players[0] = theGame.player1 !== undefined ? theGame.player1 : null;
-		players[1] = theGame.player2 !== undefined ? theGame.player2 : null;
-		players[2] = theGame.player3 !== undefined ? theGame.player3 : null;
-		players[3] = theGame.player4 !== undefined ? theGame.player4 : null;
-		return players;
+        return MultiplayerManager.get().getPlayersFromGame();
 	}
 
 	update(dt) {
